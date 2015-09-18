@@ -41,11 +41,14 @@
         <source-file src="src/android/LocalStorageDBHelper.java" target-dir="src/com/cowbell/cordova/geofence" />
         <source-file src="src/android/Logger.java" target-dir="src/com/cowbell/cordova/geofence" />
         <source-file src="src/android/Notification.java" target-dir="src/com/cowbell/cordova/geofence" />
+        <source-file src="src/android/ReceiverActivity.java" target-dir="src/com/cowbell/cordova/geofence" />
         <source-file src="src/android/ReceiveTransitionsIntentService.java" target-dir="src/com/cowbell/cordova/geofence" />
         <source-file src="src/android/RemoveGeofenceCommand.java" target-dir="src/com/cowbell/cordova/geofence" />
 		    
         <framework src="com.google.android.gms:play-services-location:+" />
         <lib-file src="src/android/libs/gson-2.3.jar" />
+
+        <source-file src="colors.xml" target-dir="res/values" />
 
         <config-file target="config.xml" parent="/*">
             <feature name="GeofencePlugin">
@@ -59,6 +62,8 @@
         </config-file>
 
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <activity android:name="com.cowbell.cordova.geofence.ReceiverActivity" android:launchMode="singleInstance" />
+
             <receiver android:name="com.cowbell.cordova.geofence.BootReceiver">
                 <intent-filter>
                     <action android:name="android.intent.action.BOOT_COMPLETED" />

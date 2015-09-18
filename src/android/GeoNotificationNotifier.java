@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
+import java.util.Random;
 
 public class GeoNotificationNotifier {
     private NotificationManager notificationManager;
@@ -27,34 +28,51 @@ public class GeoNotificationNotifier {
 
     public void notify(Notification notification) {
         notification.setContext(context);
+
+        int iconColor = context.getResources().getColor(
+            context.getResources().getIdentifier("notificationIcon",
+                    "color", context.getApplicationInfo().packageName));
+
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context)
                 .setVibrate(notification.getVibrate())
                 .setSmallIcon(notification.getSmallIcon())
                 .setLargeIcon(notification.getLargeIcon())
+                .setColor(iconColor)
                 .setAutoCancel(true)
                 .setContentTitle(notification.getTitle())
                 .setContentText(notification.getText());
 
         if (notification.openAppOnClick) {
             String packageName = context.getPackageName();
-            Intent resultIntent = context.getPackageManager()
-                    .getLaunchIntentForPackage(packageName);
+            // Intent resultIntent = context.getPackageManager()
+            //         .getLaunchIntentForPackage(packageName);
+
+            Intent resultIntent = new Intent(context, ReceiverActivity.class)
+            .setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
 
             if (notification.data != null) {
                 resultIntent.putExtra("geofence.notification.data", notification.getDataJson());
             }
+
+            //resultIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             // The stack builder object will contain an artificial back stack
             // for the
             // started Activity.
             // This ensures that navigating backward from the Activity leads out
             // of
             // your application to the Home screen.
-            TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+            // TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
             // Adds the back stack for the Intent (but not the Intent itself)
             // Adds the Intent that starts the Activity to the top of the stack
-            stackBuilder.addNextIntent(resultIntent);
-            PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(
-                    0, PendingIntent.FLAG_UPDATE_CURRENT);
+            // stackBuilder.addNextIntent(resultIntent);
+            // PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(
+            //         0, PendingIntent.FLAG_UPDATE_CURRENT);
+            int requestCode = new Random().nextInt();
+
+            PendingIntent resultPendingIntent = PendingIntent.getActivity(
+                context, requestCode, resultIntent,
+                PendingIntent.FLAG_CANCEL_CURRENT);
+        
             mBuilder.setContentIntent(resultPendingIntent);
         }
         try {
@@ -62,7 +80,7 @@ public class GeoNotificationNotifier {
             Ringtone r = RingtoneManager.getRingtone(context, notificationSound);
             r.play();
         } catch (Exception e) {
-        	beepHelper.startTone("beep_beep_beep");
+            beepHelper.startTone("beep_beep_beep");
             e.printStackTrace();
         }
         notificationManager.notify(notification.id, mBuilder.build());
